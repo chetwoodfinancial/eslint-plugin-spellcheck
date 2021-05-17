@@ -161,7 +161,7 @@ module.exports = {
             if(!hasToSkip(value)) {
                 // Regular expression matches regexp metacharacters, and any special char
                 var regexp = /(\\[sSwdDB0nfrtv])|\\[0-7][0-7][0-7]|\\x[0-9A-F][0-9A-F]|\\u[0-9A-F][0-9A-F][0-9A-F][0-9A-F]|[^0-9a-zA-Z ']/g,
-                    nodeWords = value.replace(/ʼ/g, '\'').replace(regexp, ' ')
+                    nodeWords = value.replace(/’/g, '\'').replace(regexp, ' ')
                         .replace(/([A-Z])/g, ' $1').split(' '),
                     errors;
                 errors = nodeWords
