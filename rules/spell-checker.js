@@ -101,12 +101,15 @@ module.exports = {
                     selectors: {
                         type: 'array',
                         default: []
+                    },
+                    skipContent: {
+                        type: 'array',
+                        default: []
                     }
                 },
                 additionalProperties: false
             }
         ]
-
     },
 
     // create (function) returns an object with methods that ESLint calls to “visit” nodes while traversing the abstract syntax tree (AST as defined by ESTree) of JavaScript code:
@@ -162,11 +165,26 @@ module.exports = {
         function checkSpelling(aNode, value, spellingType) {
             if(!hasToSkip(value)) {
                 // Regular expression matches regexp metacharacters, and any special char
-                var regexp = /(\\[sSwdDB0nfrtv])|\\[0-7][0-7][0-7]|\\x[0-9A-F][0-9A-F]|\\u[0-9A-F][0-9A-F][0-9A-F][0-9A-F]|[^0-9a-zA-Z '’]/g,
-                    nodeWords = value.replace(regexp, ' ')
-                        .replace(/([A-Z])/g, ' $1').split(' '),
-                    errors;
-                errors = nodeWords
+                const regexp = /(\\[sSwdDB0nfrtv])|\\[0-7][0-7][0-7]|\\x[0-9A-F][0-9A-F]|\\u[0-9A-F][0-9A-F][0-9A-F][0-9A-F]|[^0-9a-zA-Z '’]/g;
+
+                const sanitisedValue = options.skipContent.reduce(
+                    (result, regex) =>
+                        result.replace(
+                            lodash.isString(regex)
+                                ? new RegExp(regex, 'g')
+                                : regex,
+                            ''
+                        ),
+                    value
+                );
+
+                const nodeWords = sanitisedValue
+                    .replace(/’/g, "'")
+                    .replace(regexp, ' ')
+                    .replace(/([A-Z])/g, ' $1')
+                    .split(' ');
+
+                const errors = nodeWords
                     .filter(hasToSkipWord)
                     .filter(isSpellingError)
                     .filter(function(aWord) {
