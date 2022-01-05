@@ -64,19 +64,7 @@ module.exports = {
                         type: 'boolean',
                         default: true
                     },
-                    strings: {
-                        type: 'boolean',
-                        default: true
-                    },
-                    identifiers: {
-                        type: 'boolean',
-                        default: true
-                    },
                     ignoreRequire: {
-                        type: 'boolean',
-                        default: false
-                    },
-                    templates: {
                         type: 'boolean',
                         default: true
                     },
@@ -109,6 +97,10 @@ module.exports = {
                     minLength: {
                         type: 'number',
                         default: 1
+                    },
+                    selectors: {
+                        type: 'array',
+                        default: []
                     }
                 },
                 additionalProperties: false
@@ -127,19 +119,15 @@ module.exports = {
 
         'use strict';
         var defaultOptions = {
-            langDir: defaultSettings.langDir,
-            comments: true,
-            strings: true,
-            identifiers: true,
-            templates: true,
-            skipWords: [],
-            skipIfMatch: [],
-            skipWordIfMatch: [],
-            minLength: 1
-        },
-        options = lodash.assign(defaultOptions, context.options[0]),
-        lang = options.lang || 'en_US';
-
+                langDir: defaultSettings.langDir,
+                comments: true,
+                skipWords: [],
+                skipIfMatch: [],
+                skipWordIfMatch: [],
+                minLength: 1
+            },
+            options = lodash.assign(defaultOptions, context.options[0]),
+            lang = options.lang || 'en_US';
 
         if (dictionaryLang !== lang) { //Dictionary will only be initialized if changed
             dictionaryLang = lang;
@@ -258,22 +246,17 @@ module.exports = {
         // Coverage exclusion only needed for ESLint<4
         /* istanbul ignore next */
         if (isEslint4OrAbove(context)) {
-          context
-            .getSourceCode()
-            .getAllComments()
-            .forEach(function (commentNode) {
-              checkComment(commentNode);
-            });
+            context
+                .getSourceCode()
+                .getAllComments()
+                .forEach(function(commentNode) {
+                    checkComment(commentNode);
+                });
         }
 
-        return {
-            // Noop in ESLint 4+
-            'BlockComment': checkComment,
-            // Noop in ESLint 4+
-            'LineComment': checkComment,
-            'Literal': checkLiteral,
-            'TemplateElement': checkTemplateElement,
-            'Identifier': checkIdentifier
-        };
+        return lodash.mapValues(
+            lodash.keyBy(options.selectors),
+            () => checkNode
+        );
     }
 };
