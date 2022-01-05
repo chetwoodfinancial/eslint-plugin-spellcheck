@@ -6,6 +6,7 @@ var path = require('path');
 var lodash = require('lodash'),
     Spellchecker = require('hunspell-spellchecker'),
     globals = require('globals'),
+    pluralize = require('pluralize'),
     defaultSettings = require('./defaultSettings');
 
 function getGloabalsSkipsWords() {
@@ -143,10 +144,15 @@ module.exports = {
             initializeDictionary(lang);
         }
 
-        options.skipWords = new Set(lodash.union(options.skipWords, skipWords)
-            .map(function (string) {
-                return string.toLowerCase();
-            }));
+        options.skipWords = new Set(
+            lodash.flatten(
+                lodash
+                    .union(options.skipWords, skipWords)
+                    .map(function(string) {
+                        return [string.toLowerCase(), pluralize.plural(string)];
+                    })
+            )
+        );
 
         options.skipIfMatch = lodash.union(options.skipIfMatch, defaultSettings.skipIfMatch);
 
