@@ -9,6 +9,8 @@ var lodash = require('lodash'),
     pluralize = require('pluralize'),
     defaultSettings = require('./defaultSettings');
 
+const COMMENT_TYPE_BLACKLIST = ['Shebang'];
+
 function getGloabalsSkipsWords() {
     return lodash.keys(globals).map(function (each) {
         return lodash.keys(globals[each])
@@ -205,7 +207,10 @@ module.exports = {
         }
 
         function checkComment(aNode) {
-            if(options.comments) {
+            if (
+                options.comments &&
+                !COMMENT_TYPE_BLACKLIST.includes(aNode.type)
+            ) {
                 checkSpelling(aNode, aNode.value, 'Comment');
             }
         }
