@@ -12,8 +12,8 @@ var lodash = require('lodash'),
 const COMMENT_TYPE_BLACKLIST = ['Shebang'];
 
 function getGloabalsSkipsWords() {
-    return lodash.keys(globals).map(function (each) {
-        return lodash.keys(globals[each])
+    return lodash.keys(globals).map(function(each) {
+        return lodash.keys(globals[each]);
     });
 }
 
@@ -28,10 +28,9 @@ var spell = new Spellchecker(),
         Object.getOwnPropertyNames(Math)
     );
 
-
 // ESLint 3 had "eslint.version" in context. ESLint 4 does not have one.
 function isEslint4OrAbove(context) {
-  return !('eslint' in context);
+    return !('eslint' in context);
 }
 
 module.exports = {
@@ -40,7 +39,6 @@ module.exports = {
         // docs (object) is required for core rules of ESLint.
         // In a custom rule or plugin, you can omit docs or include any properties that you need in it.
         docs: {
-
             // provides the short description of the rule in the rules index
             description: 'spell check',
 
@@ -132,7 +130,8 @@ module.exports = {
             options = lodash.assign(defaultOptions, context.options[0]),
             lang = options.lang || 'en_US';
 
-        if (dictionaryLang !== lang) { //Dictionary will only be initialized if changed
+        if (dictionaryLang !== lang) {
+            //Dictionary will only be initialized if changed
             dictionaryLang = lang;
             initializeDictionary(lang);
         }
@@ -147,12 +146,19 @@ module.exports = {
             )
         );
 
-        options.skipIfMatch = lodash.union(options.skipIfMatch, defaultSettings.skipIfMatch);
+        options.skipIfMatch = lodash.union(
+            options.skipIfMatch,
+            defaultSettings.skipIfMatch
+        );
 
         function initializeDictionary(language) {
             dictionary = spell.parse({
-                aff: fs.readFileSync(path.join(options.langDir, language + '.aff')),
-                dic: fs.readFileSync(path.join(options.langDir, language + '.dic'))
+                aff: fs.readFileSync(
+                    path.join(options.langDir, language + '.aff')
+                ),
+                dic: fs.readFileSync(
+                    path.join(options.langDir, language + '.dic')
+                )
             });
 
             spell.use(dictionary);
@@ -163,7 +169,7 @@ module.exports = {
         }
 
         function checkSpelling(aNode, value, spellingType) {
-            if(!hasToSkip(value)) {
+            if (!hasToSkip(value)) {
                 // Regular expression matches regexp metacharacters, and any special char
                 const regexp = /(\\[sSwdDB0nfrtv])|\\[0-7][0-7][0-7]|\\x[0-9A-F][0-9A-F]|\\u[0-9A-F][0-9A-F][0-9A-F][0-9A-F]|[^0-9a-zA-Z '’]/g;
 
@@ -179,7 +185,7 @@ module.exports = {
                 );
 
                 const nodeWords = sanitisedValue
-                    .replace(/’/g, "'")
+                    .replace(/’/g, '\'')
                     .replace(regexp, ' ')
                     .replace(/([A-Z])/g, ' $1')
                     .split(' ');
@@ -188,27 +194,37 @@ module.exports = {
                     .filter(hasToSkipWord)
                     .filter(isSpellingError)
                     .filter(function(aWord) {
-                      // Split words by numbers for special cases such as test12anything78variable and to include 2nd and 3rd ordinals
-                      // also for Proper names we convert to lower case in second pass.
-                        var splitByNumberWords = aWord.replace(/[0-9']/g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase().split(' ');
+                        // Split words by numbers for special cases such as test12anything78variable and to include 2nd and 3rd ordinals
+                        // also for Proper names we convert to lower case in second pass.
+                        var splitByNumberWords = aWord
+                            .replace(/[0-9']/g, ' ')
+                            .replace(/([A-Z])/g, ' $1')
+                            .toLowerCase()
+                            .split(' ');
                         return splitByNumberWords.some(isSpellingError);
                     })
                     .forEach(function(aWord) {
                         context.report(
                             aNode,
-                            'You have a misspelled word: {{word}} on {{spellingType}}', {
-                              word: aWord,
-                              spellingType: spellingType
-                        });
+                            'You have a misspelled word: {{word}} on {{spellingType}}',
+                            {
+                                word: aWord,
+                                spellingType: spellingType
+                            }
+                        );
                     });
-                }
             }
+        }
 
         function isInImportDeclaration(aNode) {
             // @see https://buildmedia.readthedocs.org/media/pdf/esprima/latest/esprima.pdf
-            return aNode.parent && (
-                (aNode.parent.type === 'ImportDeclaration' || aNode.parent.type === 'ExportDeclaration') ||
-                (options.ignoreRequire && aNode.parent.type === 'CallExpression' && aNode.parent.callee.name === 'require')
+            return (
+                aNode.parent &&
+                (aNode.parent.type === 'ImportDeclaration' ||
+                    aNode.parent.type === 'ExportDeclaration' ||
+                    (options.ignoreRequire &&
+                        aNode.parent.type === 'CallExpression' &&
+                        aNode.parent.callee.name === 'require'))
             );
         }
 
@@ -221,30 +237,50 @@ module.exports = {
             }
         }
 
-        function checkLiteral(aNode){
-            if(options.strings && typeof aNode.value === 'string' && !isInImportDeclaration(aNode)) {
+        function checkNode(aNode) {
+            switch (aNode.type) {
+                case 'Literal':
+                    checkLiteral(aNode);
+                    break;
+                case 'TemplateElement':
+                    checkTemplateElement(aNode);
+                    break;
+                case 'Identifier':
+                    checkIdentifier(aNode);
+                    break;
+            }
+        }
+
+        function checkLiteral(aNode) {
+            if (
+                typeof aNode.value === 'string' &&
+                !isInImportDeclaration(aNode)
+            ) {
                 checkSpelling(aNode, aNode.value, 'String');
             }
         }
-        function checkTemplateElement(aNode){
-            if(options.templates && typeof aNode.value.raw === 'string' && !isInImportDeclaration(aNode)) {
+        function checkTemplateElement(aNode) {
+            if (
+                typeof aNode.value.raw === 'string' &&
+                !isInImportDeclaration(aNode)
+            ) {
                 checkSpelling(aNode, aNode.value.raw, 'Template');
             }
         }
 
         function checkIdentifier(aNode) {
-            if(options.identifiers) {
-                checkSpelling(aNode, aNode.name, 'Identifier');
-            }
-        }
-        /* Returns true if the string in value has to be skipped for spell checking */
-        function hasToSkip(value) {
-            return options.skipWords.has(value) ||
-                lodash.find(options.skipIfMatch, function (aPattern) {
-                    return value.match(aPattern);
-                });
+            checkSpelling(aNode, aNode.name, 'Identifier');
         }
 
+        /* Returns true if the string in value has to be skipped for spell checking */
+        function hasToSkip(value) {
+            return (
+                options.skipWords.has(value) ||
+                lodash.find(options.skipIfMatch, function(aPattern) {
+                    return value.match(aPattern);
+                })
+            );
+        }
 
         /**
          * returns false if the word has to be skipped
@@ -252,10 +288,12 @@ module.exports = {
          * @return {Boolean} false if skip; true if not
          */
         function hasToSkipWord(word) {
-            if(word.length < options.minLength) return false;
-            if(lodash.find(options.skipWordIfMatch, function (aPattern) {
-                return word.match(aPattern);
-            })){
+            if (word.length < options.minLength) return false;
+            if (
+                lodash.find(options.skipWordIfMatch, function(aPattern) {
+                    return word.match(aPattern);
+                })
+            ) {
                 return false;
             }
             return true;
