@@ -55,6 +55,7 @@ module.exports = {
         'addons',
         'arg',
         'args',
+        'arity',
         'asc',
         'async',
         'atan',
