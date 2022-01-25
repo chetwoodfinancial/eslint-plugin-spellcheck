@@ -7,6 +7,7 @@ module.exports = {
         'analytics',
         'atlassian',
         'autoprefixer',
+        'axios',
         'cordova',
         'cssnano',
         'del', // gulp plugin name
@@ -24,9 +25,11 @@ module.exports = {
         'iPods',
         'istanbul',
         'lazypipe',
+        'lerna',
         'localforage',
         'lodash',
         'ng',
+        'rollup',
         'segmentio',
         'shelljs',
         'splashscreen', // a name of cordova plugin
@@ -34,7 +37,7 @@ module.exports = {
         'touchspin',
         'uglify',
         'webdriver',
-
+        'webpack',
 
         //file extensions
         'css',
@@ -47,12 +50,12 @@ module.exports = {
         'scss',
         'tpl',
 
-
         // programming gibberish
         'addon',
         'addons',
         'arg',
         'args',
+        'arity',
         'asc',
         'async',
         'atan',
@@ -200,7 +203,6 @@ module.exports = {
         'iso',
         'utc',
 
-
         // names provided by external source code dependencies or standard
         // library
         //
@@ -217,14 +219,13 @@ module.exports = {
         'scrollwheel', // in Google Map options
         'sref', // in [ui-sref]
         'starttag', // a config name in gulp-plugin-inject
-        'stringify',  // in JSON.stringify
+        'stringify', // in JSON.stringify
         'stylers', // https://developers.google.com/maps/documentation/javascript/styling#overview
         'substr', // in String#substr
-        'thru',  // in _.thru
+        'thru', // in _.thru
         'transclude', // in angular directive
         'transclusion', // in angular directive
         'unshift', // in Array#unshift
-
 
         // Moment.js date format strings
         'YYYY',
@@ -266,7 +267,6 @@ module.exports = {
         'adipiscing',
         'elit',
 
-
         // Related to Google Maps
         //
         'coords', // South-east etc.
@@ -289,6 +289,7 @@ module.exports = {
         'ness', // -ness suffix
         'pre', // pre- prefix
         'Na', // in NaN - NaN is mishandled by the plugin
+        'etc',
 
         // tests
         'foo',
@@ -307,13 +308,12 @@ module.exports = {
         // pre/post prefixes both in kebab case and camel case
         '(\\s|^)(pre|post)([-\\w]|[A-Z])[a-zA-Z]+(\\s|$)',
         // mimetypes
-        '^[-\\w]+\/[-\\w\\.]+$',
+        '^[-\\w]+/[-\\w\\.]+$',
         // xml tags
-        '<(?:\/)?[\\w-]+>',
+        '<(?:/)?[\\w-]+>',
         // cryptographic octal hashes
         '^[0-9a-f]{5,999}$',
         // hex colors
         '^#[0-9a-f]{3,6}$'
     ]
 };
-
